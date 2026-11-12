@@ -4,6 +4,24 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-11-12
+
+### Added
+
+- Matches: after a champion is crowned the next match starts by itself after about 6 seconds; an exhibition goes on with fresh demo brawlers.
+- A match lasts at least 20 seconds: agents that finish sooner keep fighting until then.
+- Stats board under the arena: leaderboard (wins, K.O.s, downs, damage, matches), moves landed and recent winners, kept across sessions; a **Reset stats** button.
+- Five stages that change with every match: Night Dojo, Neon Alley, Snow Temple, Volcano Crater and Cherry Blossom Court, with weather.
+- Twelve original fighter archetypes picked by subagent type, each with its own guard stance; two ki fighters with an aura.
+
+### Changed
+
+- Sprites drawn at twice the resolution with five-tone volume shading, inner contour lines, cloth folds and muscle detail.
+- Victory, hurt, uppercut and boxing guard poses keep the face visible.
+- The arena scales to the full width of the pane and asks for a wider dock.
+- All text in the arena is English and plain ASCII.
+- The scene stays under the surface's markup limit: weather drops first, then the earliest fighters leave the picture.
+
 ## [0.1.0] - 2026-11-11
 
 ### Added
@@ -15,4 +33,5 @@ All notable changes to this project are documented here. The format follows
 - `/arena` opens the pane, `/arena-demo` starts an exhibition fight with demo brawlers.
 - Text fallback for the terminal surface.
 
+[0.2.0]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.2.0
 [0.1.0]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.1.0

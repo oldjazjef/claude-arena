@@ -8,16 +8,20 @@
 
 | What happens in the session | What happens in the arena |
 | --- | --- |
-| A subagent starts | A new fighter drops in: "NEUER HERAUSFORDERER" |
+| A subagent starts | A new fighter drops in: "NEW CHALLENGER" |
 | The subagent runs `Bash` / `PowerShell` | Energy orb |
 | `Edit` / `Write` | Kick |
 | `Read` / `Grep` / `Glob` | Jab |
 | `WebFetch` / `WebSearch` / MCP tools | Uppercut |
 | HP drops to 0 | K.O. with dizzy stars; back on its feet after three rounds |
-| The subagent finishes | Victory pose, leaves the fight |
-| All subagents finished | The fighter with the most K.O.s wins the crown |
+| The subagent finishes | Victory pose, leaves the fight (once the match has run 20 seconds) |
+| All subagents finished | The fighter with the most K.O.s wins the crown; the next match starts after a short break |
 
-Between tool calls fighters trade light blows, so the ring never stands still. A round lasts 2.1 seconds and plays up to three strikes.
+Between tool calls fighters trade light blows, so the ring never stands still. A round lasts 2.1 seconds and plays up to three strikes; a match lasts at least 20 seconds.
+
+- **Fighters:** twelve original archetypes (karateka, ninja, monk, kung-fu fighter, boxer, wildling, wrestler, MMA fighter, master, ki warrior, ki adept, flyweight), each with its own guard stance. The subagent type picks the archetype; colours vary per fighter.
+- **Stages:** every match moves to the next of five stages, from a night dojo to a volcano crater, with rain, snow, embers or petals.
+- **Stats:** a leaderboard under the arena counts wins, K.O.s, damage and moves across matches and sessions.
 
 ## Install
 
@@ -43,7 +47,7 @@ To update later: `/plugin marketplace update subagent-arena`.
 
 - `/arena` opens the arena pane (it also opens by itself when the first subagent starts).
 - `/arena-demo` starts an exhibition fight with four demo brawlers, no subagents needed.
-- The pane's **Arena leeren** button clears the ring.
+- The pane's **Clear arena** button clears the ring; **Reset stats** wipes the leaderboard.
 
 The animated arena draws in the Claude desktop app and the VS Code extension. The terminal shows a compact text version with HP bars.
 

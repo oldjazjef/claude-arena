@@ -1,9 +1,11 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface as Engine, Register, Timer } from 'claude-code'
 
-import type { ArenaState, Fighter, Inbox } from '../types'
+import type { ArenaStats, Fighter, Inbox } from '../types'
 import { ROUND_MS, sceneSvg } from './scene'
 import { EMPTY_ARENA, EMPTY_INBOX, demoFighters, isLive, moveForTool, playRound, shoutForTool } from './sim'
+import { EMPTY_STATS, leaders, tally } from './stats'
+import { statsSvg } from './statsview'
 
 const PANE = 'subagent-arena'
 const TITLE = 'Claude Arena'
@@ -13,6 +15,24 @@ const TITLE = 'Claude Arena'
 // lands in `inbox` and is played in the next round.
 const arena = atom({ plugin: 'subagent-arena', key: 'arena' } as const, EMPTY_ARENA, { shape: 'arena-1' })
 const inbox = atom({ plugin: 'subagent-arena', key: 'inbox' } as const, EMPTY_INBOX, { shape: 'inbox-1' })
+const stats = atom({ plugin: 'subagent-arena', key: 'stats' } as const, EMPTY_STATS, { shape: 'stats-1' })
+
+/** Stats outlive the session in `$.store`; written at most every few rounds. */
+const STORE_KEY = 'stats-1'
+let unsaved = 0
+const saveStats = async ($: Engine, st: ArenaStats, force = false) => {
+  unsaved += 1
+  if (!force && unsaved < 5) return
+  unsaved = 0
+  try {
+    await $.store.set(STORE_KEY, st)
+  } catch {
+    // Stats are a nicety; a full store never stops the fight.
+  }
+}
+
+const isStats = (v: unknown): v is ArenaStats =>
+  typeof v === 'object' && v !== null && 'fighters' in v && 'byMove' in v && 'history' in v
 
 let timer: Timer | undefined
 let busy = false
@@ -52,6 +72,13 @@ const tick = async ($: Engine) => {
     quiet = 0
     const { arena: next, leftover } = playRound(now, taken, Math.random)
     await update($, arena, () => next)
+    let tallied: ArenaStats = EMPTY_STATS
+    await update($, stats, st => {
+      tallied = tally(st, now, next)
+      return tallied
+    })
+    const crowned = next.intermission !== undefined && now.intermission === undefined
+    await saveStats($, tallied, crowned)
     if (leftover.length > 0) {
       await update($, inbox, box => ({ ...box, queue: [...leftover, ...box.queue].slice(-40) }))
     }
@@ -69,17 +96,27 @@ const ensureTimer = ($: Engine) => {
   void tick($)
 }
 
-const openPane = ($: Engine) => $.ui.open({ id: PANE, title: TITLE })
+// Asks for a wide dock beside the transcript (the surface caps it at 45%).
+const openPane = ($: Engine) => $.ui.open({ id: PANE, title: TITLE, columns: 140, rows: 40 })
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'arena',
-      description: 'Claude Arena: Pane mit den Subagent-Kaempfen oeffnen',
+      description: 'Claude Arena: open the pane with the subagent fights',
     })
-    await $.command.register({ name: 'arena-demo', description: 'Claude Arena: Schaukampf mit Demo-Brawlern' })
+    await $.command.register({ name: 'arena-demo', description: 'Claude Arena: exhibition fight with demo brawlers' })
     const now = await read($, arena)
     if (isLive(now)) ensureTimer($)
+    const held = await read($, stats)
+    if (held.rounds === 0) {
+      try {
+        const kept = await $.store.get(STORE_KEY)
+        if (isStats(kept)) await update($, stats, () => ({ ...EMPTY_STATS, ...kept }))
+      } catch {
+        // Start from zero.
+      }
+    }
 
     return next(e)
   })
@@ -135,25 +172,27 @@ export const register: Register = on => {
     await openPane($)
     ensureTimer($)
 
-    return { text: 'Claude Arena geoeffnet. "/arena-demo" startet einen Schaukampf.' }
+    return { text: 'Claude Arena opened. "/arena-demo" starts an exhibition fight.' }
   })
 
   on('command.run', { command: 'arena-demo' }, async $ => {
     await startDemo($)
 
-    return { text: 'Schaukampf gestartet: vier Demo-Brawler betreten die Arena.' }
+    return { text: 'Exhibition started: four demo brawlers enter the arena.' }
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const els = $.ui.resolve(e)
     const { Box, Text, Button } = els
     const a = await read($, arena)
+    const st = await read($, stats)
     const live = a.fighters.filter(f => f.status !== 'done').length
 
     const controls = (
       <Box flexDirection="row" gap={1}>
-        <Button label="Schaukampf" onPress={() => void startDemo($)} />
-        <Button label="Arena leeren" onPress={() => void reset($)} />
+        <Button label="Exhibition" onPress={() => void startDemo($)} />
+        <Button label="Clear arena" onPress={() => void reset($)} />
+        <Button label="Reset stats" onPress={() => void resetStats($)} />
       </Box>
     )
 
@@ -164,31 +203,45 @@ export const register: Register = on => {
         <Box flexDirection="column" gap={1}>
           <Svg
             source={sceneSvg(a)}
-            alt={`Arena, Runde ${a.round}: ${a.fighters.map(f => `${f.name} ${f.hp} HP`).join(', ') || 'leer'}`}
+            alt={`Arena, round ${a.round}: ${a.fighters.map(f => `${f.name} ${f.hp} HP`).join(', ') || 'empty'}`}
             isInteractive
           />
           <Text dimColor>
             {a.fighters.length === 0
-              ? 'Noch keine Brawler. Starte Subagents oder einen Schaukampf.'
-              : `${live} im Ring · ${a.fighters.length - live} fertig`}
+              ? 'No brawlers yet. Start subagents or an exhibition.'
+              : `Match ${a.match ?? 1} | ${live} in the ring | ${a.fighters.length - live} done`}
           </Text>
           {controls}
+          <Svg
+            source={statsSvg(st)}
+            alt={`Stats: ${st.matches} matches. ${leaders(st, 5)
+              .map(f => `${f.name} ${f.wins} wins, ${f.kos} KOs`)
+              .join('; ')}`}
+          />
         </Box>
       )
     }
 
-    const bar = (hp: number) => '█'.repeat(Math.round(hp / 10)) + '░'.repeat(10 - Math.round(hp / 10))
+    const bar = (hp: number) => '#'.repeat(Math.round(hp / 10)) + '-'.repeat(10 - Math.round(hp / 10))
 
     return (
       <Box flexDirection="column">
-        <Text bold>CLAUDE ARENA · Runde {a.round}</Text>
-        {a.fighters.length === 0 && <Text dimColor>Warte auf Herausforderer …</Text>}
+        <Text bold>
+          CLAUDE ARENA | Match {a.match ?? 1} | Round {Math.max(1, a.round - (a.matchStart ?? 0))}
+        </Text>
+        {a.fighters.length === 0 && <Text dimColor>Waiting for challengers...</Text>}
         {a.fighters.map(f => (
           <Text>
-            {bar(f.hp)} {f.name} {f.status === 'ko' ? 'K.O.' : f.status === 'done' ? '✓' : ''} {f.kos > 0 ? `★${f.kos}` : ''}
+            {bar(f.hp)} {f.name} {f.status === 'ko' ? 'KO' : f.status === 'done' ? 'done' : ''} {f.kos > 0 ? `*${f.kos}` : ''}
           </Text>
         ))}
         {a.feed !== '' && <Text dimColor>{a.feed}</Text>}
+        <Text bold>Leaderboard ({st.matches} matches)</Text>
+        {leaders(st, 5).map((f, i) => (
+          <Text>
+            {i + 1}. {f.name} | {f.wins} wins | {f.kos} KOs | {f.dmgDealt} damage
+          </Text>
+        ))}
         {controls}
       </Box>
     )
@@ -208,4 +261,9 @@ const reset = async ($: Engine) => {
   timer = undefined
   await update($, inbox, () => EMPTY_INBOX)
   await update($, arena, () => EMPTY_ARENA)
+}
+
+const resetStats = async ($: Engine) => {
+  await update($, stats, () => EMPTY_STATS)
+  await saveStats($, EMPTY_STATS, true)
 }
