@@ -1,6 +1,6 @@
 {
   "name": "subagent-arena",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Every subagent becomes a pixel-art brawler: animated 2D fights in an arena pane beside the chat",
   "author": { "name": "oldjazjef", "url": "https://github.com/oldjazjef" },
   "homepage": "https://github.com/oldjazjef/claude-arena",

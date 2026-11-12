@@ -1,8 +1,12 @@
 # Claude Arena
 
+[![Release](https://img.shields.io/github/v/release/oldjazjef/claude-arena?style=flat-square)](https://github.com/oldjazjef/claude-arena/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-ffdd00?style=flat-square&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/hello.eme)
+
 **Every subagent becomes a brawler.** Claude Arena is a mod for [Claude Code](https://claude.com/claude-code) that opens an arena pane beside the chat. Each subagent your session starts drops into the ring as a pixel-art martial artist, and the tools it calls turn into its moves. When every agent is done, the fighter with the most knockouts takes the crown.
 
-![Claude Arena: pixel-art brawlers fighting in a night dojo yard](docs/arena.svg)
+![Claude Arena: four pixel-art brawlers fighting in a rainy neon alley](docs/arena.svg)
 
 ## How the fight works
 
@@ -22,6 +26,10 @@ Between tool calls fighters trade light blows, so the ring never stands still. A
 - **Fighters:** twelve original archetypes (karateka, ninja, monk, kung-fu fighter, boxer, wildling, wrestler, MMA fighter, master, ki warrior, ki adept, flyweight), each with its own guard stance. The subagent type picks the archetype; colours vary per fighter.
 - **Stages:** every match moves to the next of five stages, from a night dojo to a volcano crater, with rain, snow, embers or petals.
 - **Stats:** a leaderboard under the arena counts wins, K.O.s, damage and moves across matches and sessions.
+
+![A champion is crowned on the volcano stage, with the leaderboard, moves and recent winners below](docs/match-and-stats.png)
+
+![The roster: twelve pixel-art fighters, each in its own guard stance](docs/roster.png)
 
 ## Install
 
@@ -58,9 +66,10 @@ The mod is a Claude Code hooks module:
 | File | Role |
 | --- | --- |
 | `hooks/register.tsx` | Hooks: `agent.spawn`, `tool.call`, `turn.complete`, the pane and the commands |
-| `hooks/sim.ts` | One round of the fight: who hits whom, damage, K.O., champion |
-| `hooks/scene.ts` | Draws a round as an SVG whose SMIL animations play the strikes |
-| `hooks/sprite.ts` | The pixel sprites: rigs rasterised to a grid with outline and shading |
+| `hooks/sim.ts` | One round of the fight: who hits whom, damage, K.O., champion, the next match |
+| `hooks/scene.ts` | Draws a round as an SVG whose SMIL animations play the strikes; the stages and their weather |
+| `hooks/sprite.ts` | The pixel sprites: rigs and stances per archetype, rasterised with outline, volume shading and inner contours |
+| `hooks/stats.ts`, `hooks/statsview.ts` | Running totals across matches and the leaderboard drawn under the arena |
 | `types/index.d.ts` | The state contract |
 
 Run it from a checkout with `claude --plugin-dir .` and check it with `claude plugin validate .`.
@@ -72,3 +81,9 @@ Bump `version` in `.claude-plugin/plugin.json`, add a section to `CHANGELOG.md`,
 ## License
 
 [MIT](LICENSE). The fighters and the arena are original artwork drawn in code by this project.
+
+## Support
+
+Claude Arena is free. If it made your subagents more fun to watch, you can buy me a coffee.
+
+<a href="https://buymeacoffee.com/hello.eme" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="48" /></a>

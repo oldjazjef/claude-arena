@@ -167,11 +167,13 @@ type Look = {
   hairColor?: string
   /** A glow of ki around the body. */
   aura?: boolean
+  /** A gi colour of the archetype's own, over the fighter's. */
+  giColor?: string
 }
 
 export const LOOKS: Look[] = [
   { name: 'karateka', torso: 'gi', sleeves: false, legs: 'gi', head: 'band', hair: 'short', hands: 'wraps', feet: 'bare', bulk: 1, belly: 0, extras: [] },
-  { name: 'ninja', torso: 'gi', sleeves: true, legs: 'gi', head: 'hood', hair: 'none', hands: 'wraps', feet: 'wraps', bulk: 0.94, belly: 0, extras: ['scarf', 'sash'] },
+  { name: 'ninja', torso: 'gi', sleeves: true, legs: 'gi', head: 'hood', hair: 'none', hands: 'wraps', feet: 'wraps', bulk: 0.94, belly: 0, extras: ['scarf', 'sash'], giColor: '#2f3138' },
   { name: 'monk', torso: 'robe', sleeves: false, legs: 'gi', head: 'none', hair: 'none', hands: 'bare', feet: 'bare', bulk: 1.18, belly: 6, extras: ['beads'] },
   { name: 'kungfu', torso: 'vest', sleeves: false, legs: 'alt', head: 'none', hair: 'braid', hands: 'wraps', feet: 'boots', bulk: 0.96, belly: 0, extras: ['collar'] },
   { name: 'boxer', torso: 'bare', sleeves: false, legs: 'shorts', head: 'none', hair: 'short', hands: 'gloves', feet: 'boots', bulk: 1.12, belly: 0, extras: [] },
@@ -179,7 +181,7 @@ export const LOOKS: Look[] = [
   { name: 'wrestler', torso: 'bare', sleeves: false, legs: 'trunks', head: 'mask', hair: 'none', hands: 'bare', feet: 'boots', bulk: 1.25, belly: 2, extras: [] },
   { name: 'mma', torso: 'bare', sleeves: false, legs: 'shorts', head: 'none', hair: 'short', hands: 'mitts', feet: 'bare', bulk: 1.04, belly: 0, extras: ['beard'] },
   { name: 'master', torso: 'gi', sleeves: true, legs: 'gi', head: 'none', hair: 'short', hands: 'bare', feet: 'bare', bulk: 0.9, belly: 0, extras: ['longbeard'], hairColor: '#d8d4cc' },
-  { name: 'ki-warrior', torso: 'gi', sleeves: false, legs: 'gi', head: 'none', hair: 'flame', hands: 'wraps', feet: 'boots', bulk: 1.02, belly: 0, extras: [], aura: true },
+  { name: 'ki-warrior', torso: 'gi', sleeves: false, legs: 'gi', head: 'none', hair: 'flame', hands: 'wraps', feet: 'boots', bulk: 1.02, belly: 0, extras: [], aura: true, hairColor: '#d8dce8', giColor: '#1d5a6c' },
   { name: 'ki-adept', torso: 'vest', sleeves: false, legs: 'alt', head: 'none', hair: 'tail', hands: 'wraps', feet: 'boots', bulk: 0.86, belly: 0, extras: [], aura: true },
   { name: 'flyweight', torso: 'bare', sleeves: false, legs: 'shorts', head: 'none', hair: 'spiky', hands: 'mitts', feet: 'bare', bulk: 0.84, belly: 0, extras: [] },
 ]
@@ -558,8 +560,8 @@ export const sprite = (pose: Pose, face: number, styleIndex: number, lookIndex =
   const pal: Record<number, Ramp> = {
     [SKIN]: ramp(st.skin),
     [SKIN_B]: ramp(skinB),
-    [GI]: ramp(st.gi),
-    [GI_B]: ramp(mix(st.gi, '#1a0a14', 0.3)),
+    [GI]: ramp(lk.giColor ?? st.gi),
+    [GI_B]: ramp(mix(lk.giColor ?? st.gi, '#1a0a14', 0.3)),
     [BELT]: ramp('#24201f'),
     [HAIR]: ramp(lk.hairColor ?? st.hair),
     [BAND]: ramp(st.band),
