@@ -49,7 +49,7 @@ claude plugin install subagent-arena --marketplace oldjazjef/claude-arena
 
 In the Claude desktop app, where `/plugin` does not run: click **+** next to the prompt box, then **Plugins**, **Add marketplace** with `oldjazjef/claude-arena`, then **Add plugin**. A mod installed from a terminal at the user scope loads in the desktop app's local sessions too.
 
-To update later: `/plugin marketplace update subagent-arena`.
+To update later: `/plugin marketplace update subagent-arena`, then `/plugin update subagent-arena@subagent-arena`.
 
 ## Use
 
