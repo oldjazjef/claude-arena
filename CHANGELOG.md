@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.2] - 2026-11-17
+
+### Fixed
+
+- The arena scales with the pane: it fills the pane's width at any size instead of a small fixed box in the desktop app.
+
+### Changed
+
+- README: updating takes `/plugin marketplace update` and then `/plugin update`.
+
 ## [0.2.1] - 2026-11-12
 
 ### Changed
@@ -45,6 +55,7 @@ All notable changes to this project are documented here. The format follows
 - `/arena` opens the pane, `/arena-demo` starts an exhibition fight with demo brawlers.
 - Text fallback for the terminal surface.
 
+[0.2.2]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.2.2
 [0.2.1]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.2.1
 [0.2.0]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.2.0
 [0.1.0]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.1.0

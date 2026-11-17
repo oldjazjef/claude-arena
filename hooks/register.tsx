@@ -204,7 +204,6 @@ export const register: Register = on => {
           <Svg
             source={sceneSvg(a)}
             alt={`Arena, round ${a.round}: ${a.fighters.map(f => `${f.name} ${f.hp} HP`).join(', ') || 'empty'}`}
-            isInteractive
           />
           <Text dimColor>
             {a.fighters.length === 0
