@@ -53,8 +53,8 @@ To update later: `/plugin marketplace update subagent-arena`, then `/plugin upda
 
 ## Use
 
-- `/arena` opens the arena pane (it also opens by itself when the first subagent starts).
-- `/arena-demo` starts an exhibition fight with four demo brawlers, no subagents needed.
+- `/arena` turns the arena on for this session and opens the pane. Until you run it, nothing happens: subagents do not fight and the pane stays closed. Every new session starts with the arena off.
+- `/arena-demo` starts an exhibition fight with four demo brawlers, no subagents needed (it turns the arena on too).
 - The pane's **Clear arena** button clears the ring; **Reset stats** wipes the leaderboard.
 
 The animated arena draws in the Claude desktop app and the VS Code extension. The terminal shows a compact text version with HP bars.

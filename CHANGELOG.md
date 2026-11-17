@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-11-17
+
+### Changed
+
+- The arena no longer starts by itself. It stays off in every session until you run `/arena` (or `/arena-demo`); from then on, the session's subagents fight and the pane opens as before. Each new session starts with the arena off again.
+
 ## [0.2.2] - 2026-11-17
 
 ### Fixed
@@ -55,6 +61,7 @@ All notable changes to this project are documented here. The format follows
 - `/arena` opens the pane, `/arena-demo` starts an exhibition fight with demo brawlers.
 - Text fallback for the terminal surface.
 
+[0.3.0]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.3.0
 [0.2.2]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.2.2
 [0.2.1]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.2.1
 [0.2.0]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.2.0

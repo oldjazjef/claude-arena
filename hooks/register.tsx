@@ -16,6 +16,18 @@ const TITLE = 'Claude Arena'
 const arena = atom({ plugin: 'subagent-arena', key: 'arena' } as const, EMPTY_ARENA, { shape: 'arena-1' })
 const inbox = atom({ plugin: 'subagent-arena', key: 'inbox' } as const, EMPTY_INBOX, { shape: 'inbox-1' })
 const stats = atom({ plugin: 'subagent-arena', key: 'stats' } as const, EMPTY_STATS, { shape: 'stats-1' })
+// Off until the person runs /arena (or /arena-demo) in this session: until then
+// subagents start no fight and the pane never opens by itself.
+const enabled = atom({ plugin: 'subagent-arena', key: 'enabled' } as const, false, { shape: 'enabled-1' })
+const isOn = async ($: Engine) => {
+  try {
+    return (await read($, enabled)) === true
+  } catch {
+    // The show never holds up the session: unreadable means off.
+    return false
+  }
+}
+const turnOn = ($: Engine) => update($, enabled, () => true)
 
 /** Stats outlive the session in `$.store`; written at most every few rounds. */
 const STORE_KEY = 'stats-1'
@@ -103,11 +115,11 @@ export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'arena',
-      description: 'Claude Arena: open the pane with the subagent fights',
+      description: 'Claude Arena: open the pane; subagents fight from now on in this session',
     })
     await $.command.register({ name: 'arena-demo', description: 'Claude Arena: exhibition fight with demo brawlers' })
     const now = await read($, arena)
-    if (isLive(now)) ensureTimer($)
+    if (isLive(now) && (await isOn($))) ensureTimer($)
     const held = await read($, stats)
     if (held.rounds === 0) {
       try {
@@ -123,7 +135,7 @@ export const register: Register = on => {
 
   on('agent.spawn', async ($, e, next) => {
     const started = await next(e)
-    if ('agentId' in started && started.agentId) {
+    if ('agentId' in started && started.agentId && (await isOn($))) {
       const name = (e.description || e.name || e.subagentType || 'Agent').trim()
       const join = newcomer(started.agentId, name, e.subagentType || 'agent')
       try {
@@ -139,7 +151,7 @@ export const register: Register = on => {
   })
 
   on('tool.call', async ($, e, next) => {
-    if (e.agentId) {
+    if (e.agentId && (await isOn($))) {
       const id = e.agentId
       const tool = e.tool
       try {
@@ -156,7 +168,7 @@ export const register: Register = on => {
   })
 
   on('turn.complete', async ($, e, next) => {
-    if (e.agentId) {
+    if (e.agentId && (await isOn($))) {
       const id = e.agentId
       try {
         await update($, inbox, box => ({ ...box, finished: [...box.finished, id] }))
@@ -169,10 +181,11 @@ export const register: Register = on => {
   })
 
   on('command.run', { command: 'arena' }, async $ => {
+    await turnOn($)
     await openPane($)
     ensureTimer($)
 
-    return { text: 'Claude Arena opened. "/arena-demo" starts an exhibition fight.' }
+    return { text: 'Claude Arena opened: subagents of this session fight from now on. "/arena-demo" starts an exhibition fight.' }
   })
 
   on('command.run', { command: 'arena-demo' }, async $ => {
@@ -248,6 +261,7 @@ export const register: Register = on => {
 }
 
 const startDemo = async ($: Engine) => {
+  await turnOn($)
   const now = await read($, arena)
   const joins = demoFighters(now.round, Math.random)
   await update($, inbox, box => ({ ...box, joins: [...box.joins, ...joins] }))

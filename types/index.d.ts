@@ -81,6 +81,8 @@ declare module 'claude-code' {
       arena: Shaped<ArenaState>
       inbox: Shaped<Inbox>
       stats: Shaped<ArenaStats>
+      /** True once /arena or /arena-demo ran in this session. */
+      enabled: Shaped<boolean>
     }
   }
 }
