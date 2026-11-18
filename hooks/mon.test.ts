@@ -24,6 +24,7 @@ import {
   xpAt,
 } from './mon'
 import { monsterSvg } from './monscene'
+import { fitToPane, roomAspect } from './fit'
 
 const seeded = (seed: number) => () => {
   seed = (seed * 1664525 + 1013904223) % 4294967296
@@ -116,4 +117,15 @@ test('every stage, egg and battle draws under the surface limit', () => {
   const bt = startBattle(save, 'm1', 'm2')
   const v = beat({ ...EMPTY_VIEW, save, ...(bt ? { battle: bt } : {}) }, undefined, seeded(2))
   expect(monsterSvg(v).length).toBeLessThan(131072)
+})
+
+test('a wide, flat pane gets the whole scene: the viewBox widens to the room', () => {
+  const svg = monsterSvg(EMPTY_VIEW)
+  const wide = fitToPane(svg, 240, 40, 9)
+  const m = /viewBox="(-?\d+) 0 (\d+) (\d+)"/.exec(wide)
+  expect(m).not.toBeNull()
+  expect(Number(m?.[1])).toBeLessThan(0)
+  expect(Math.abs(Number(m?.[2]) / Number(m?.[3]) - roomAspect(240, 40, 9))).toBeLessThan(0.01)
+  // A tall pane keeps the scene as it was: the width limits it already.
+  expect(fitToPane(svg, 60, 80, 9)).toBe(svg)
 })

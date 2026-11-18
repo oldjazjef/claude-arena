@@ -6,9 +6,12 @@ import { ROUND_MS, sceneSvg } from './scene'
 import { EMPTY_ARENA, EMPTY_INBOX, demoFighters, isLive, moveForTool, playRound, shoutForTool } from './sim'
 import { EMPTY_STATS, leaders, tally } from './stats'
 import { statsSvg } from './statsview'
+import { fitToPane } from './fit'
 import { flushMon, monSpawn, monStart, monTool, monTurn, monsterPane, setMode, stopBeats } from './monhooks'
 
 const PANE = 'subagent-arena'
+/** Rows kept under and over the arena scene: the mode buttons, the status line and the controls. */
+const ARENA_ROWS = 9
 const TITLE = 'Claude Arena'
 
 // Only the round loop writes `arena`, the one value the pane reads: so a tool
@@ -231,7 +234,8 @@ export const register: Register = on => {
         <Button label={shown === 'monster' ? '[ Monster ]' : 'Monster'} onPress={() => void setMode($, 'monster')} />
       </Box>
     )
-    if (shown === 'monster') return monsterPane($, els, tabs)
+    const room = { columns: e.props.bodyColumns, rows: e.props.scroll.bodyRows }
+    if (shown === 'monster') return monsterPane($, els, tabs, room)
     const a = await read($, arena)
     const st = await read($, stats)
     const live = a.fighters.filter(f => f.status !== 'done').length
@@ -251,7 +255,7 @@ export const register: Register = on => {
         <Box flexDirection="column" gap={1}>
           {tabs}
           <Svg
-            source={sceneSvg(a)}
+            source={fitToPane(sceneSvg(a), room.columns, room.rows, ARENA_ROWS)}
             alt={`Arena, round ${a.round}: ${a.fighters.map(f => `${f.name} ${f.hp} HP`).join(', ') || 'empty'}`}
           />
           <Text dimColor>
