@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.1] - 2026-11-18
+
+### Fixed
+
+- The arena and the monster scene fit the pane whole: in a wide, flat pane the scene no longer runs past the bottom, it shrinks to the room's height with clear bars at the sides, and the buttons under it stay in view.
+
 ## [0.4.0] - 2026-11-18
 
 ### Added
@@ -76,6 +82,7 @@ All notable changes to this project are documented here. The format follows
 - `/arena` opens the pane, `/arena-demo` starts an exhibition fight with demo brawlers.
 - Text fallback for the terminal surface.
 
+[0.4.1]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.4.1
 [0.4.0]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.4.0
 [0.3.0]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.3.0
 [0.2.2]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.2.2

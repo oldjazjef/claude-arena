@@ -31,6 +31,7 @@ import {
   stageOf,
 } from './mon'
 import { BEAT_MS, monsterSvg } from './monscene'
+import { fitToPane } from './fit'
 
 export const mode = atom({ plugin: 'subagent-arena', key: 'mode' } as const, 'arena' as ArenaMode, { shape: 'mode-1' })
 const monster = atom({ plugin: 'subagent-arena', key: 'monster' } as const, EMPTY_VIEW, { shape: 'monster-1' })
@@ -172,7 +173,10 @@ async function fight($: Engine, id: string) {
 }
 
 /** The monster pane: the scene, then the team with its buttons. */
-export async function monsterPane($: Engine, els: Record<string, any>, tabs: unknown) {
+/** Rows kept around the monster scene: the mode buttons, the egg's choice and the team controls. */
+const MONSTER_ROWS = 9
+
+export async function monsterPane($: Engine, els: Record<string, any>, tabs: unknown, room: { columns: number; rows: number }) {
   const { Box, Text, Button } = els
   const v = await read($, monster)
   const save = v.save
@@ -221,7 +225,7 @@ export async function monsterPane($: Engine, els: Record<string, any>, tabs: unk
     return (
       <Box flexDirection="column" gap={1}>
         {tabs}
-        <Svg source={monsterSvg(v)} alt={`${nameOf(partner)}, level ${levelOf(partner.xp)}${v.battle ? ', in a sparring match' : ''}`} />
+        <Svg source={fitToPane(monsterSvg(v), room.columns, room.rows, MONSTER_ROWS)} alt={`${nameOf(partner)}, level ${levelOf(partner.xp)}${v.battle ? ', in a sparring match' : ''}`} />
         {choose}
         {controls}
         <Text bold>Team ({save.team.length}/{MAX_TEAM})</Text>
