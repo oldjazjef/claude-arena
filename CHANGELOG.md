@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-11-18
+
+### Added
+
+- Monster mode: a team of pixel monsters that grows with your work. Every tool call of every session gives the partner XP in the background; the pane opens only on `/monster` or the pane's **Monster** button.
+- Three original creature lines with four stages each, drawn from the front with a body plan of their own: a fire lizard that becomes a winged drake, a water droplet that becomes a tusked leviathan, a seed bulb that becomes a walking tree.
+- Nine moves per line, learned on the way to level 50; the partner walks its habitat and answers tool calls with them.
+- Gear every third level, worn on the sprite: headband, helm and crown; twig sword, steel blade and thunder staff; bell, scarf and amulet; leaf cape, hero cape and crystal wings.
+- Up to six creatures: **New egg**, **Make partner**, and **Battle** for a turn-based sparring match with HP, critical hits and type matchups.
+- **Arena** / **Monster** switch at the top of the pane.
+
+### Changed
+
+- README: how to update from a shell with `claude plugin ...`.
+
 ## [0.3.0] - 2026-11-17
 
 ### Changed
@@ -61,6 +76,7 @@ All notable changes to this project are documented here. The format follows
 - `/arena` opens the pane, `/arena-demo` starts an exhibition fight with demo brawlers.
 - Text fallback for the terminal surface.
 
+[0.4.0]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.4.0
 [0.3.0]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.3.0
 [0.2.2]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.2.2
 [0.2.1]: https://github.com/oldjazjef/claude-arena/releases/tag/v0.2.1

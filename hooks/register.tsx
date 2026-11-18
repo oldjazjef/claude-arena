@@ -1,11 +1,12 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface as Engine, Register, Timer } from 'claude-code'
 
-import type { ArenaStats, Fighter, Inbox } from '../types'
+import type { ArenaMode, ArenaStats, Fighter, Inbox } from '../types'
 import { ROUND_MS, sceneSvg } from './scene'
 import { EMPTY_ARENA, EMPTY_INBOX, demoFighters, isLive, moveForTool, playRound, shoutForTool } from './sim'
 import { EMPTY_STATS, leaders, tally } from './stats'
 import { statsSvg } from './statsview'
+import { flushMon, monSpawn, monStart, monTool, monTurn, monsterPane, setMode, stopBeats } from './monhooks'
 
 const PANE = 'subagent-arena'
 const TITLE = 'Claude Arena'
@@ -28,6 +29,8 @@ const isOn = async ($: Engine) => {
   }
 }
 const turnOn = ($: Engine) => update($, enabled, () => true)
+/** Which show the pane draws; monhooks writes it. */
+const mode = atom({ plugin: 'subagent-arena', key: 'mode' } as const, 'arena' as ArenaMode, { shape: 'mode-1' })
 
 /** Stats outlive the session in `$.store`; written at most every few rounds. */
 const STORE_KEY = 'stats-1'
@@ -118,6 +121,8 @@ export const register: Register = on => {
       description: 'Claude Arena: open the pane; subagents fight from now on in this session',
     })
     await $.command.register({ name: 'arena-demo', description: 'Claude Arena: exhibition fight with demo brawlers' })
+    await $.command.register({ name: 'monster', description: 'Claude Arena: open your monster team, which grows with your work' })
+    await monStart($)
     const now = await read($, arena)
     if (isLive(now) && (await isOn($))) ensureTimer($)
     const held = await read($, stats)
@@ -135,6 +140,7 @@ export const register: Register = on => {
 
   on('agent.spawn', async ($, e, next) => {
     const started = await next(e)
+    if ('agentId' in started && started.agentId) void monSpawn($)
     if ('agentId' in started && started.agentId && (await isOn($))) {
       const name = (e.description || e.name || e.subagentType || 'Agent').trim()
       const join = newcomer(started.agentId, name, e.subagentType || 'agent')
@@ -151,6 +157,8 @@ export const register: Register = on => {
   })
 
   on('tool.call', async ($, e, next) => {
+    // Every tool call feeds the monster, opened or not: the pane still opens only on a command.
+    void monTool($, e.tool)
     if (e.agentId && (await isOn($))) {
       const id = e.agentId
       const tool = e.tool
@@ -168,6 +176,7 @@ export const register: Register = on => {
   })
 
   on('turn.complete', async ($, e, next) => {
+    if (!e.agentId) void monTurn($)
     if (e.agentId && (await isOn($))) {
       const id = e.agentId
       try {
@@ -182,10 +191,24 @@ export const register: Register = on => {
 
   on('command.run', { command: 'arena' }, async $ => {
     await turnOn($)
+    await setMode($, 'arena')
     await openPane($)
     ensureTimer($)
 
     return { text: 'Claude Arena opened: subagents of this session fight from now on. "/arena-demo" starts an exhibition fight.' }
+  })
+
+  on('command.run', { command: 'monster' }, async $ => {
+    await flushMon($)
+    await setMode($, 'monster')
+    await openPane($)
+
+    return { text: 'Monster opened: your partner grows with every tool call. "/arena" switches back to the fights.' }
+  })
+
+  on('ui.close', { id: PANE }, async ($, e, next) => {
+    stopBeats()
+    return next(e)
   })
 
   on('command.run', { command: 'arena-demo' }, async $ => {
@@ -197,6 +220,18 @@ export const register: Register = on => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const els = $.ui.resolve(e)
     const { Box, Text, Button } = els
+    const shown = await read($, mode)
+    const tabs = (
+      <Box flexDirection="row" gap={1}>
+        <Button label={shown === 'arena' ? '[ Arena ]' : 'Arena'} onPress={() => void (async () => {
+          await turnOn($)
+          await setMode($, 'arena')
+          ensureTimer($)
+        })()} />
+        <Button label={shown === 'monster' ? '[ Monster ]' : 'Monster'} onPress={() => void setMode($, 'monster')} />
+      </Box>
+    )
+    if (shown === 'monster') return monsterPane($, els, tabs)
     const a = await read($, arena)
     const st = await read($, stats)
     const live = a.fighters.filter(f => f.status !== 'done').length
@@ -214,6 +249,7 @@ export const register: Register = on => {
 
       return (
         <Box flexDirection="column" gap={1}>
+          {tabs}
           <Svg
             source={sceneSvg(a)}
             alt={`Arena, round ${a.round}: ${a.fighters.map(f => `${f.name} ${f.hp} HP`).join(', ') || 'empty'}`}
@@ -238,6 +274,7 @@ export const register: Register = on => {
 
     return (
       <Box flexDirection="column">
+        {tabs}
         <Text bold>
           CLAUDE ARENA | Match {a.match ?? 1} | Round {Math.max(1, a.round - (a.matchStart ?? 0))}
         </Text>
@@ -262,6 +299,7 @@ export const register: Register = on => {
 
 const startDemo = async ($: Engine) => {
   await turnOn($)
+  await setMode($, 'arena')
   const now = await read($, arena)
   const joins = demoFighters(now.round, Math.random)
   await update($, inbox, box => ({ ...box, joins: [...box.joins, ...joins] }))
