@@ -4,11 +4,22 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-ffdd00?style=flat-square&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/hello.eme)
 
-**Every subagent becomes a brawler.** Claude Arena is a mod for [Claude Code](https://claude.com/claude-code) that opens an arena pane beside the chat. Each subagent your session starts drops into the ring as a pixel-art martial artist, and the tools it calls turn into its moves. When every agent is done, the fighter with the most knockouts takes the crown.
+**Your work, as a pixel-art game beside the chat.** Claude Arena is a mod for [Claude Code](https://claude.com/claude-code) that opens a pane with two modes:
 
-![Claude Arena: four pixel-art brawlers fighting in a rainy neon alley](docs/arena.svg)
+| Mode | What it is | Open it with |
+| --- | --- | --- |
+| **Arena** | Every subagent your session starts drops into the ring as a martial artist; the tools it calls are its moves. The fighter with the most knockouts takes the crown. | `/arena` |
+| **Monster** | A team of pixel monsters that grows with every tool call you make: it levels up, evolves through four stages, learns moves, finds gear and spars with the rest of the team. | `/monster` |
 
-## How the fight works
+The **Arena** and **Monster** buttons at the top of the pane switch between the two. Nothing opens by itself: the pane appears only when you ask for it.
+
+![Arena mode: four pixel-art brawlers fighting in a rainy neon alley](docs/arena.svg)
+
+![Monster mode: Blazorn, a fire drake with helm, blade and scarf, uses Cinder Spin in its desert habitat](docs/monster.svg)
+
+## Arena mode
+
+### How the fight works
 
 | What happens in the session | What happens in the arena |
 | --- | --- |
@@ -33,6 +44,9 @@ Between tool calls fighters trade light blows, so the ring never stands still. A
 
 ## Monster mode
 
+Open it with `/monster`, or the **Monster** button at the top of the pane.
+
+
 The pane's second mode raises a team of pixel monsters that grow with your work. Every tool call of every session, the main one and its subagents, gives your partner XP in the background, whether the pane is open or not; it only opens when you ask for it.
 
 | What happens in the session | What the monster gets |
@@ -50,6 +64,10 @@ The pane's second mode raises a team of pixel monsters that grow with your work.
 - **Team and battles:** **New egg** adds another creature (up to six) and makes it the partner, the one that earns XP. **Make partner** switches; with two hatched creatures, **Battle** starts a sparring match: turn by turn, with HP, critical hits and type matchups (fire beats plant, plant beats water, water beats fire).
 
 The team is kept in the plugin's store across sessions, so it keeps growing day after day. All creatures, names and moves are original designs of this project.
+
+![The three monster lines, stage by stage: Embit to Pyrathor (fire), Dripple to Abyssaur (water), Sproutle to Verdantitan (plant)](docs/monster-lines.svg)
+
+![A sparring match: Pyrathor against Abyssaur, with HP bars and a not very effective hit](docs/monster-battle.svg)
 
 ## Install
 
@@ -104,7 +122,7 @@ Bump `version` in `.claude-plugin/plugin.json`, add a section to `CHANGELOG.md`,
 
 ## License
 
-[MIT](LICENSE). The fighters and the arena are original artwork drawn in code by this project.
+[MIT](LICENSE). The fighters, the arena and the monsters are original artwork drawn in code by this project.
 
 ## Support
 
